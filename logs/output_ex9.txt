@@ -1,0 +1,124 @@
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2 (main) $ cd /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ kubectl apply -f sample_deployment.yaml
+deployment.apps/sample-deployment created
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ touch sample-service.yaml
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ kubectl apply -f sample-service.yaml
+service/sample-service created
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ stable-ingress.yaml
+bash: stable-ingress.yaml: command not found
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ touch stable-ingress.yaml
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ kubectl apply -f stable-ingress.yaml
+Warning: annotation "kubernetes.io/ingress.class" is deprecated, please use 'spec.ingressClassName' instead
+ingress.networking.k8s.io/ingress-example created
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ minikube addons enable ingress
+🤷  Profile "minikube" not found. Run "minikube profile list" to view all profiles.
+👉  To start a cluster, run: "minikube start"
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ minikube start
+😄  minikube v1.34.0 on Ubuntu 20.04 (docker/amd64)
+✨  Automatically selected the docker driver. Other choices: ssh, none
+📌  Using Docker driver with root privileges
+👍  Starting "minikube" primary control-plane node in "minikube" cluster
+🚜  Pulling base image v0.0.45 ...
+🔥  Creating docker container (CPUs=2, Memory=2200MB) ...
+🐳  Preparing Kubernetes v1.31.0 on Docker 27.2.0 ...
+    ▪ Generating certificates and keys ...
+    ▪ Booting up control plane ...
+    ▪ Configuring RBAC rules ...
+🔗  Configuring bridge CNI (Container Networking Interface) ...
+🔎  Verifying Kubernetes components...
+    ▪ Using image gcr.io/k8s-minikube/storage-provisioner:v5
+🌟  Enabled addons: storage-provisioner, default-storageclass
+🏄  Done! kubectl is now configured to use "minikube" cluster and "default" namespace by default
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ touch canary-deployment.yaml
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ kubectl apply -f canary-deployment.yaml
+deployment.apps/canary-deployment created
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ touch canary-service.yaml
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ kubectl apply -f canary-service.yaml
+service/canary-service created
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ touch canary-ingress.yaml
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ kubectl apply -f canary-ingress.yaml
+ingress.networking.k8s.io/canary-ingress created
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ kubectl get pods
+NAME                                 READY   STATUS    RESTARTS   AGE
+canary-deployment-6d587964b7-zbwr9   1/1     Running   0          104s
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ kubectl get svc
+NAME             TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+canary-service   ClusterIP   10.96.131.174   <none>        80/TCP    51s
+kubernetes       ClusterIP   10.96.0.1       <none>        443/TCP   2m39s
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ kubectl get ingress
+NAME             CLASS    HOSTS         ADDRESS   PORTS   AGE
+canary-ingress   <none>   example.com             80      22s
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ minikube tunnel
+Status:
+        machine: minikube
+        pid: 71121
+        route: 10.96.0.0/12 -> 192.168.58.2
+        minikube: Running
+        services: []
+    errors: 
+                minikube: no errors
+                router: no errors
+                loadbalancer emulator: no errors
+ 
+minikube ip
+
+^C@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ minikube ip
+192.168.58.2
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ kubectl port-forward svc/sample-service 8080:80
+Error from server (NotFound): services "sample-service" not found
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ kubectl apply -f sample-deployment.yamlkubectl apply -f sample-service.yamlkubectl apply -f stable-ingress.yaml
+error: Unexpected args: [apply apply]
+See 'kubectl apply -h' for help and examples
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ kubectl apply -f sample-deployment.yaml
+error: the path "sample-deployment.yaml" does not exist
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ kubectl apply -f sample_deployment.yaml
+deployment.apps/sample-deployment created
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ kubectl apply -f sample-service.yaml
+service/sample-service created
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ kubectl apply -f stable-ingress.yaml
+Warning: annotation "kubernetes.io/ingress.class" is deprecated, please use 'spec.ingressClassName' instead
+ingress.networking.k8s.io/ingress-example created
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ kubectl get svc
+NAME             TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+canary-service   ClusterIP   10.96.131.174   <none>        80/TCP    11m
+kubernetes       ClusterIP   10.96.0.1       <none>        443/TCP   13m
+sample-service   ClusterIP   10.96.220.233   <none>        80/TCP    32s
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ kubectl get pods
+NAME                                 READY   STATUS    RESTARTS   AGE
+canary-deployment-6d587964b7-zbwr9   1/1     Running   0          12m
+sample-deployment-7b5864c46b-chmmv   1/1     Running   0          64s
+sample-deployment-7b5864c46b-q4h7l   1/1     Running   0          64s
+sample-deployment-7b5864c46b-wxbjh   1/1     Running   0          64s
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ kubectl port-forward svc/sample-service 8080:80
+Forwarding from 127.0.0.1:8080 -> 8080
+Forwarding from [::1]:8080 -> 8080
+Handling connection for 8080
+E0321 20:56:09.334838   82380 portforward.go:424] "Unhandled Error" err=<
+        an error occurred forwarding 8080 -> 8080: error forwarding port 8080 to pod 3c634647ab24f26ac881a6cc9a14002a86a4ec84bc4cf07c0afbc5806721eaa6, uid : exit status 1: 2025/03/21 20:56:09 socat[5713] E connect(5, AF=2 127.0.0.1:8080, 16): Connection refused
+ >
+error: lost connection to pod
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ kubectl get pods -l app=nginx
+NAME                                 READY   STATUS    RESTARTS   AGE
+sample-deployment-7b5864c46b-chmmv   1/1     Running   0          3m10s
+sample-deployment-7b5864c46b-q4h7l   1/1     Running   0          3m10s
+sample-deployment-7b5864c46b-wxbjh   1/1     Running   0          3m10s
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ kubectl get deployment sample-deployment -o yaml | grep containerPort
+      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"nginx"},"name":"sample-deployment","namespace":"default"},"spec":{"replicas":3,"selector":{"matchLabels":{"app":"nginx"}},"template":{"metadata":{"labels":{"app":"nginx"}},"spec":{"containers":[{"image":"nginx:1.14.2","name":"nginx","ports":[{"containerPort":8080}]}]}}}}
+        - containerPort: 8080
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ kubectl apply -f sample-deployment.yaml
+error: the path "sample-deployment.yaml" does not exist
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ kubectl apply -f sample_deployment.yaml
+deployment.apps/sample-deployment configured
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ kubectl apply -f sample-service.yaml
+service/sample-service configured
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ kubectl port-forward svc/sample-service 8080:80
+Forwarding from 127.0.0.1:8080 -> 80
+Forwarding from [::1]:8080 -> 80
+^C@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ kubectl port-forward svc/sample-service 8080:80
+Forwarding from 127.0.0.1:8080 -> 80
+Forwarding from [::1]:8080 -> 80
+Handling connection for 8080
+Handling connection for 8080
+^C@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ history > commands_ex9.txt
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ touch output_ex9.txt
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy (main) $ url http://localhost:8080

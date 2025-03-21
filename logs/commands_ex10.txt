@@ -1,0 +1,21 @@
+    1  kubectl apply -f configmap.yaml
+    2  kubectl patch service  SERVICENAME -p '{"spec":{"selector":{"KEY": "VALUE"}}}'
+    3  cd /workspaces/ensf400-lab8-kubernetes-2/10-blue-green-deploy
+    4  kubectl apply -f blue.yml
+    5  kubectl get pods --show-labels
+    6  touch svc.yaml
+    7  kubectl apply -f svc.yml
+    8  kubectl exec -it bluepod -- bash
+    9  kubectl exec -it greenpod -- bash
+   10  kubectl apply -f greenpod.yaml
+   11  kubectl apply -f green.yaml
+   12  kubectl apply -f green.yml
+   13  kubectl get pods --show-labels
+   14  kubectl exec -it greenpod -- bash
+   15  kubectl get pods -o wide
+   16  kubectl run -it --rm --image=curlimages/curl curly -- sh
+   17  kubectl get svc
+   18  kubectl run -it --rm --image=curlimages/curl curly -- sh
+   19  kubectl patch service myapp -p '{"spec":{"selector":{"app": "green"}}}'
+   20  kubectl run -it --rm --image=curlimages/curl curly -- sh
+   21  history > commands_ex10.txt

@@ -1,0 +1,12 @@
+    1  kubectl apply -f configmap.yaml
+    2  minikube start --nodes 3 -p ensf400
+    3  kubectl apply -f configmap.yaml
+    4  cd /workspaces/ensf400-lab8-kubernetes-2/8-configmap
+    5  kubectl apply -f configmap.yaml
+    6  kubectl get configmap
+    7  kubectl apply -f pod.yaml
+    8  kubectl exec -it configmappod -- printenv
+    9  kubectl create configmap myconfigmap2 --from-literal=background=red --from-file=theme.txt
+   10  kubectl get configmap myconfigmap2 -o yaml
+   11  kubectl delete configmap myconfigmap2
+   12  history > commands_ex7.txt

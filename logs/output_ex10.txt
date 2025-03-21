@@ -1,0 +1,95 @@
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2 (main) $ cd /workspaces/ensf400-lab8-kubernetes-2/10-blue-green-deploy
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/10-blue-green-deploy (main) $ kubectl apply -f blue.yml
+pod/bluepod created
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/10-blue-green-deploy (main) $ kubectl get pods --show-labels
+NAME                                 READY   STATUS              RESTARTS   AGE   LABELS
+bluepod                              0/1     ContainerCreating   0          9s    app=blue
+canary-deployment-6d587964b7-zbwr9   1/1     Running             0          45m   app=nginx-canary,pod-template-hash=6d587964b7
+sample-deployment-d556bf558-rdq5t    1/1     Running             0          28m   app=nginx,pod-template-hash=d556bf558
+sample-deployment-d556bf558-wshkk    1/1     Running             0          28m   app=nginx,pod-template-hash=d556bf558
+sample-deployment-d556bf558-x6662    1/1     Running             0          28m   app=nginx,pod-template-hash=d556bf558
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/10-blue-green-deploy (main) $ kubectl get pods --show-labels
+NAME                                 READY   STATUS    RESTARTS   AGE   LABELS
+bluepod                              1/1     Running   0          19s   app=blue
+canary-deployment-6d587964b7-zbwr9   1/1     Running   0          45m   app=nginx-canary,pod-template-hash=6d587964b7
+sample-deployment-d556bf558-rdq5t    1/1     Running   0          28m   app=nginx,pod-template-hash=d556bf558
+sample-deployment-d556bf558-wshkk    1/1     Running   0          28m   app=nginx,pod-template-hash=d556bf558
+sample-deployment-d556bf558-x6662    1/1     Running   0          28m   app=nginx,pod-template-hash=d556bf558
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/10-blue-green-deploy (main) $ touch svc.yaml
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/10-blue-green-deploy (main) $ kubectl apply -f svc.yml
+service/myapp created
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/10-blue-green-deploy (main) $ kubectl exec -it bluepod -- bash
+root@bluepod:/usr/local/apache2# echo "Hello from Blue-Pod" >> htdocs/index.html
+root@bluepod:/usr/local/apache2# exit
+exit
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/10-blue-green-deploy (main) $ kubectl exec -it greenpod -- bash
+Error from server (NotFound): pods "greenpod" not found
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/10-blue-green-deploy (main) $ kubectl apply -f greenpod.yaml
+error: the path "greenpod.yaml" does not exist
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/10-blue-green-deploy (main) $ kubectl apply -f green.yaml
+error: the path "green.yaml" does not exist
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/10-blue-green-deploy (main) $ kubectl apply -f green.yml
+pod/greenpod created
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/10-blue-green-deploy (main) $ kubectl get pods --show-labels
+NAME                                 READY   STATUS    RESTARTS   AGE     LABELS
+bluepod                              1/1     Running   0          4m26s   app=blue
+canary-deployment-6d587964b7-zbwr9   1/1     Running   0          49m     app=nginx-canary,pod-template-hash=6d587964b7
+greenpod                             1/1     Running   0          12s     app=green
+sample-deployment-d556bf558-rdq5t    1/1     Running   0          32m     app=nginx,pod-template-hash=d556bf558
+sample-deployment-d556bf558-wshkk    1/1     Running   0          32m     app=nginx,pod-template-hash=d556bf558
+sample-deployment-d556bf558-x6662    1/1     Running   0          32m     app=nginx,pod-template-hash=d556bf558
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/10-blue-green-deploy (main) $ kubectl exec -it greenpod -- bash
+root@greenpod:/usr/local/apache2# echo "Hello from Green-Pod" >> htdocs/index.html
+exit
+exit
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/10-blue-green-deploy (main) $ kubectl get pods -o wide
+NAME                                 READY   STATUS    RESTARTS   AGE     IP            NODE       NOMINATED NODE   READINESS GATES
+bluepod                              1/1     Running   0          5m13s   10.244.0.10   minikube   <none>           <none>
+canary-deployment-6d587964b7-zbwr9   1/1     Running   0          50m     10.244.0.3    minikube   <none>           <none>
+greenpod                             1/1     Running   0          59s     10.244.0.11   minikube   <none>           <none>
+sample-deployment-d556bf558-rdq5t    1/1     Running   0          33m     10.244.0.8    minikube   <none>           <none>
+sample-deployment-d556bf558-wshkk    1/1     Running   0          33m     10.244.0.9    minikube   <none>           <none>
+sample-deployment-d556bf558-x6662    1/1     Running   0          33m     10.244.0.7    minikube   <none>           <none>
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/10-blue-green-deploy (main) $ kubectl run -it --rm --image=curlimages/curl curly -- sh
+
+If you don't see a command prompt, try pressing enter.
+~ $ 
+~ $ curl 10.244.2.2
+curl: (7) Failed to connect to 10.244.2.2 port 80 after 3110 ms: Could not connect to server
+~ $ curl 10.244.0.10
+<html><body><h1>It works!</h1></body></html>
+Hello from Blue-Pod
+~ $ curl 10.244.0.11 
+<html><body><h1>It works!</h1></body></html>
+Hello from Green-Pod
+~ $ exit
+Session ended, resume using 'kubectl attach curly -c curly -i -t' command when the pod is running
+pod "curly" deleted
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/10-blue-green-deploy (main) $ kubectl get svc
+NAME             TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+canary-service   ClusterIP   10.96.131.174   <none>        80/TCP    52m
+kubernetes       ClusterIP   10.96.0.1       <none>        443/TCP   54m
+myapp            ClusterIP   10.102.141.10   <none>        80/TCP    6m55s
+sample-service   ClusterIP   10.96.220.233   <none>        80/TCP    41m
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/10-blue-green-deploy (main) $ kubectl run -it --rm --image=curlimages/curl curly -- sh
+
+If you don't see a command prompt, try pressing enter.
+
+~ $ curl myapp
+<html><body><h1>It works!</h1></body></html>
+Hello from Blue-Pod
+~ $ exit
+Session ended, resume using 'kubectl attach curly -c curly -i -t' command when the pod is running
+pod "curly" deleted
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/10-blue-green-deploy (main) $ kubectl patch service myapp -p '{"spec":{"selector":{"app": "green"}}}'
+service/myapp patched
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/10-blue-green-deploy (main) $ kubectl run -it --rm --image=curlimages/curl curly -- sh
+If you don't see a command prompt, try pressing enter.
+~ $ curl myapp
+<html><body><h1>It works!</h1></body></html>
+Hello from Green-Pod
+~ $ exit
+Session ended, resume using 'kubectl attach curly -c curly -i -t' command when the pod is running
+pod "curly" deleted
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/10-blue-green-deploy (main) $ history > commands_ex10.txt
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/10-blue-green-deploy (main) $ touch output_ex10.txt

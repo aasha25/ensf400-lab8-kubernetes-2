@@ -1,0 +1,40 @@
+    1  kubectl apply -f configmap.yaml
+    2  minikube start --nodes 3 -p ensf400
+    3  touch sample_deployment.yaml
+    4  kubectl apply -f sample_deployment.yaml
+    5  cd /workspaces/ensf400-lab8-kubernetes-2/9-canary-deploy
+    6  kubectl apply -f sample_deployment.yaml
+    7  touch sample-service.yaml
+    8  kubectl apply -f sample-service.yaml
+    9  stable-ingress.yaml
+   10  touch stable-ingress.yaml
+   11  kubectl apply -f stable-ingress.yaml
+   12  minikube addons enable ingress
+   13  minikube start
+   14  touch canary-deployment.yaml
+   15  kubectl apply -f canary-deployment.yaml
+   16  touch canary-service.yaml
+   17  kubectl apply -f canary-service.yaml
+   18  touch canary-ingress.yaml
+   19  kubectl apply -f canary-ingress.yaml
+   20  kubectl get pods
+   21  kubectl get svc
+   22  kubectl get ingress
+   23  minikube tunnel
+   24  minikube ip
+   25  kubectl port-forward svc/sample-service 8080:80
+   26  kubectl apply -f sample-deployment.yamlkubectl apply -f sample-service.yamlkubectl apply -f stable-ingress.yaml
+   27  kubectl apply -f sample-deployment.yaml
+   28  kubectl apply -f sample_deployment.yaml
+   29  kubectl apply -f sample-service.yaml
+   30  kubectl apply -f stable-ingress.yaml
+   31  kubectl get svc
+   32  kubectl get pods
+   33  kubectl port-forward svc/sample-service 8080:80
+   34  kubectl get pods -l app=nginx
+   35  kubectl get deployment sample-deployment -o yaml | grep containerPort
+   36  kubectl apply -f sample-deployment.yaml
+   37  kubectl apply -f sample_deployment.yaml
+   38  kubectl apply -f sample-service.yaml
+   39  kubectl port-forward svc/sample-service 8080:80
+   40  history > commands_ex9.txt

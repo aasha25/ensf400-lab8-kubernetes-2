@@ -1,0 +1,22 @@
+    1  kubectl get nodes
+    2  cd /workspaces/ensf400-lab8-kubernetes-2/7-scheduling
+    3  kubectl label nodes ensf400-m02 mynode=worker-1
+    4  kubectl apply -f pod-nginx.yaml
+    5  kubectl get pods -o wide
+    6  kubectl describe pod nginx
+    7  kubectl delete -f pod-nginx.yaml
+    8  kubectl apply -f pod-nginx.yaml
+    9  kubectl get po -o wide
+   10  kubectl describe pod nginx
+   11  kubectl label node ensf400-m03 mynode=worker-x
+   12  kubectl get po -o wide
+   13  kubectl label nodes ensf400-m02 mynode=worker-1
+   14  kubectl label nodes ensf400-m03 mynode=worker-x
+   15  kubectl apply -f pod-with-node-affinity.yaml
+   16  kubectl get pods --output=wide
+   17  kubectl describe po
+   18  kubectl delete -f pod-with-node-affinity.yaml
+   19  kubectl apply -f deploy-with-node-anti-affinity.yaml
+   20  kubectl get pods -o wide
+   21  kubectl delete -f deploy-with-node-anti-affinity.yaml
+   22  history > commands_ex7.txt

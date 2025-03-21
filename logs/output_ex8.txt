@@ -1,0 +1,97 @@
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2 (main) $ minikube start --nodes 3 -p ensf400
+😄  [ensf400] minikube v1.34.0 on Ubuntu 20.04 (docker/amd64)
+✨  Using the docker driver based on existing profile
+❗  You cannot change the number of nodes for an existing minikube cluster. Please use 'minikube node add' to add nodes to an existing cluster.
+👍  Starting "ensf400" primary control-plane node in "ensf400" cluster
+🚜  Pulling base image v0.0.45 ...
+🏃  Updating the running docker "ensf400" container ...
+🐳  Preparing Kubernetes v1.31.0 on Docker 27.2.0 ...
+🔎  Verifying Kubernetes components...
+🌟  Enabled addons: 
+
+👍  Starting "ensf400-m02" worker node in "ensf400" cluster
+🚜  Pulling base image v0.0.45 ...
+🏃  Updating the running docker "ensf400-m02" container ...
+🌐  Found network options:
+    ▪ NO_PROXY=192.168.49.2
+🐳  Preparing Kubernetes v1.31.0 on Docker 27.2.0 ...
+    ▪ env NO_PROXY=192.168.49.2
+🔎  Verifying Kubernetes components...
+
+👍  Starting "ensf400-m03" worker node in "ensf400" cluster
+🚜  Pulling base image v0.0.45 ...
+🏃  Updating the running docker "ensf400-m03" container ...
+🌐  Found network options:
+    ▪ NO_PROXY=192.168.49.2,192.168.49.3
+🐳  Preparing Kubernetes v1.31.0 on Docker 27.2.0 ...
+    ▪ env NO_PROXY=192.168.49.2
+    ▪ env NO_PROXY=192.168.49.2,192.168.49.3
+🔎  Verifying Kubernetes components...
+🏄  Done! kubectl is now configured to use "ensf400" cluster and "default" namespace by default
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2 (main) $ kubectl apply -f configmap.yaml
+error: the path "configmap.yaml" does not exist
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2 (main) $  minikube status -p ensf400
+ensf400
+type: Control Plane
+host: Running
+kubelet: Running
+apiserver: Running
+kubeconfig: Configured
+
+ensf400-m02
+type: Worker
+host: Running
+kubelet: Running
+
+ensf400-m03
+type: Worker
+host: Running
+kubelet: Running
+
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2 (main) $ cd /workspaces/ensf400-lab8-kubernetes-2/8-configmap
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/8-configmap (main) $ kubectl apply -f configmap.yaml
+configmap/myconfigmap created
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/8-configmap (main) $ kubectl get configmap
+NAME               DATA   AGE
+kube-root-ca.crt   1      109m
+myconfigmap        3      12s
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/8-configmap (main) $ kubectl apply -f pod.yaml
+pod/configmappod created
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/8-configmap (main) $ kubectl exec -it configmappod -- printenv
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+HOSTNAME=configmappod
+TERM=xterm
+DB_SERVER=db.example.com
+DATABASE=mydatabase
+KUBERNETES_PORT_443_TCP_PORT=443
+KUBERNETES_PORT_443_TCP_ADDR=10.96.0.1
+KUBERNETES_SERVICE_HOST=10.96.0.1
+KUBERNETES_SERVICE_PORT=443
+KUBERNETES_SERVICE_PORT_HTTPS=443
+KUBERNETES_PORT=tcp://10.96.0.1:443
+KUBERNETES_PORT_443_TCP=tcp://10.96.0.1:443
+KUBERNETES_PORT_443_TCP_PROTO=tcp
+NGINX_VERSION=1.27.4
+NJS_VERSION=0.8.9
+NJS_RELEASE=1~bookworm
+PKG_RELEASE=1~bookworm
+DYNPKG_RELEASE=1~bookworm
+HOME=/root
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/8-configmap (main) $ kubectl create configmap myconfigmap2 --from-literal=background=red --from-file=theme.txt
+configmap/myconfigmap2 created
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/8-configmap (main) $ kubectl get configmap myconfigmap2 -o yaml
+apiVersion: v1
+data:
+  background: red
+  theme.txt: theme=dark
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2025-03-21T20:32:15Z"
+  name: myconfigmap2
+  namespace: default
+  resourceVersion: "5200"
+  uid: e724feb8-0408-4f03-aad2-57cc4166d5d9
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/8-configmap (main) $ kubectl delete configmap myconfigmap2
+configmap "myconfigmap2" deleted
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/8-configmap (main) $ history > commands_ex7.txt
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/8-configmap (main) $ touch output_ex8.txt

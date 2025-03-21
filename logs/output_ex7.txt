@@ -1,0 +1,280 @@
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2 (main) $  minikube start --nodes 3 -p ensf400
+😄  [ensf400] minikube v1.34.0 on Ubuntu 20.04 (docker/amd64)
+✨  Using the docker driver based on existing profile
+❗  You cannot change the number of nodes for an existing minikube cluster. Please use 'minikube node add' to add nodes to an existing cluster.
+👍  Starting "ensf400" primary control-plane node in "ensf400" cluster
+🚜  Pulling base image v0.0.45 ...
+🔄  Restarting existing docker container for "ensf400" ...
+🐳  Preparing Kubernetes v1.31.0 on Docker 27.2.0 ...
+🔎  Verifying Kubernetes components...
+🌟  Enabled addons: 
+
+👍  Starting "ensf400-m02" worker node in "ensf400" cluster
+🚜  Pulling base image v0.0.45 ...
+🔄  Restarting existing docker container for "ensf400-m02" ...
+🌐  Found network options:
+    ▪ NO_PROXY=192.168.49.2
+🐳  Preparing Kubernetes v1.31.0 on Docker 27.2.0 ...
+    ▪ env NO_PROXY=192.168.49.2
+🔎  Verifying Kubernetes components...
+
+👍  Starting "ensf400-m03" worker node in "ensf400" cluster
+🚜  Pulling base image v0.0.45 ...
+🔄  Restarting existing docker container for "ensf400-m03" ...
+🌐  Found network options:
+    ▪ NO_PROXY=192.168.49.2,192.168.49.3
+🐳  Preparing Kubernetes v1.31.0 on Docker 27.2.0 ...
+    ▪ env NO_PROXY=192.168.49.2
+    ▪ env NO_PROXY=192.168.49.2,192.168.49.3
+🔎  Verifying Kubernetes components...
+🏄  Done! kubectl is now configured to use "ensf400" cluster and "default" namespace by default
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2 (main) $ kubectl get nodes
+NAME          STATUS   ROLES           AGE   VERSION
+ensf400       Ready    control-plane   82m   v1.31.0
+ensf400-m02   Ready    <none>          82m   v1.31.0
+ensf400-m03   Ready    <none>          81m   v1.31.0
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2 (main) $  minikube status -p ensf400
+ensf400
+type: Control Plane
+host: Running
+kubelet: Running
+apiserver: Running
+kubeconfig: Configured
+
+ensf400-m02
+type: Worker
+host: Running
+kubelet: Running
+
+ensf400-m03
+type: Worker
+host: Running
+kubelet: Running
+
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2 (main) $ cd /workspaces/ensf400-lab8-kubernetes-2/7-scheduling
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/7-scheduling (main) $ kubectl label nodes ensf400-m02 mynode=worker-1
+node/ensf400-m02 labeled
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/7-scheduling (main) $ kubectl apply -f pod-nginx.yaml
+pod/nginx created
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/7-scheduling (main) $ kubectl get pods -o wide
+NAME    READY   STATUS    RESTARTS   AGE   IP       NODE     NOMINATED NODE   READINESS GATES
+nginx   0/1     Pending   0          58s   <none>   <none>   <none>           <none>
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/7-scheduling (main) $ kubectl describe pod nginx
+Name:             nginx
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             <none>
+Labels:           env=test
+Annotations:      <none>
+Status:           Pending
+IP:               
+IPs:              <none>
+Containers:
+  nginx:
+    Image:        nginx
+    Port:         <none>
+    Host Port:    <none>
+    Environment:  <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-c94hp (ro)
+Conditions:
+  Type           Status
+  PodScheduled   False 
+Volumes:
+  kube-api-access-c94hp:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              mynode=worker-x
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason            Age   From               Message
+  ----     ------            ----  ----               -------
+  Warning  FailedScheduling  80s   default-scheduler  0/3 nodes are available: 3 node(s) didn't match Pod's node affinity/selector. preemption: 0/3 nodes are available: 3 Preemption is not helpful for scheduling.
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/7-scheduling (main) $ kubectl delete -f pod-nginx.yaml
+pod "nginx" deleted
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/7-scheduling (main) $ kubectl apply -f pod-nginx.yaml
+pod/nginx created
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/7-scheduling (main) $ kubectl get po -o wide
+NAME    READY   STATUS    RESTARTS   AGE   IP       NODE     NOMINATED NODE   READINESS GATES
+nginx   0/1     Pending   0          10s   <none>   <none>   <none>           <none>
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/7-scheduling (main) $ kubectl describe pod nginx
+Name:             nginx
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             <none>
+Labels:           env=test
+Annotations:      <none>
+Status:           Pending
+IP:               
+IPs:              <none>
+Containers:
+  nginx:
+    Image:        nginx
+    Port:         <none>
+    Host Port:    <none>
+    Environment:  <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-hnwk9 (ro)
+Conditions:
+  Type           Status
+  PodScheduled   False 
+Volumes:
+  kube-api-access-hnwk9:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              mynode=worker-x
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason            Age   From               Message
+  ----     ------            ----  ----               -------
+  Warning  FailedScheduling  23s   default-scheduler  0/3 nodes are available: 3 node(s) didn't match Pod's node affinity/selector. preemption: 0/3 nodes are available: 3 Preemption is not helpful for scheduling.
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/7-scheduling (main) $ 
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/7-scheduling (main) $ kubectl label node ensf400-m03 mynode=worker-x
+node/ensf400-m03 labeled
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/7-scheduling (main) $ kubectl get po -o wide
+NAME    READY   STATUS              RESTARTS   AGE   IP       NODE          NOMINATED NODE   READINESS GATES
+nginx   0/1     ContainerCreating   0          48s   <none>   ensf400-m03   <none>           <none>
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/7-scheduling (main) $ kubectl label nodes ensf400-m02 mynode=worker-1
+node/ensf400-m02 not labeled
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/7-scheduling (main) $ kubectl label nodes ensf400-m03 mynode=worker-x
+node/ensf400-m03 not labeled
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/7-scheduling (main) $ kubectl apply -f pod-with-node-affinity.yaml
+pod/with-node-affinity created
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/7-scheduling (main) $ kubectl get pods --output=wide
+NAME                 READY   STATUS    RESTARTS   AGE     IP           NODE          NOMINATED NODE   READINESS GATES
+nginx                1/1     Running   0          2m16s   10.244.2.2   ensf400-m03   <none>           <none>
+with-node-affinity   1/1     Running   0          10s     10.244.1.2   ensf400-m02   <none>           <none>
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/7-scheduling (main) $ kubectl describe po
+Name:             nginx
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             ensf400-m03/192.168.49.4
+Start Time:       Fri, 21 Mar 2025 20:19:43 +0000
+Labels:           env=test
+Annotations:      <none>
+Status:           Running
+IP:               10.244.2.2
+IPs:
+  IP:  10.244.2.2
+Containers:
+  nginx:
+    Container ID:   docker://e647d5b598805132f2d02aa6960aea50678dfdceb3cc9bbcb5be54bbaecc309c
+    Image:          nginx
+    Image ID:       docker-pullable://nginx@sha256:124b44bfc9ccd1f3cedf4b592d4d1e8bddb78b51ec2ed5056c52d3692baebc19
+    Port:           <none>
+    Host Port:      <none>
+    State:          Running
+      Started:      Fri, 21 Mar 2025 20:19:53 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-hnwk9 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-hnwk9:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              mynode=worker-x
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason            Age    From               Message
+  ----     ------            ----   ----               -------
+  Warning  FailedScheduling  2m30s  default-scheduler  0/3 nodes are available: 3 node(s) didn't match Pod's node affinity/selector. preemption: 0/3 nodes are available: 3 Preemption is not helpful for scheduling.
+  Normal   Scheduled         112s   default-scheduler  Successfully assigned default/nginx to ensf400-m03
+  Normal   Pulling           110s   kubelet            Pulling image "nginx"
+  Normal   Pulled            102s   kubelet            Successfully pulled image "nginx" in 7.819s (7.819s including waiting). Image size: 191978824 bytes.
+  Normal   Created           102s   kubelet            Created container nginx
+  Normal   Started           102s   kubelet            Started container nginx
+
+
+Name:             with-node-affinity
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             ensf400-m02/192.168.49.3
+Start Time:       Fri, 21 Mar 2025 20:21:11 +0000
+Labels:           <none>
+Annotations:      <none>
+Status:           Running
+IP:               10.244.1.2
+IPs:
+  IP:  10.244.1.2
+Containers:
+  nginx:
+    Container ID:   docker://5e66dd5fd3adf884a9cb304757245d8038fa46acc53772e60ee23784ad0e6a01
+    Image:          nginx
+    Image ID:       docker-pullable://nginx@sha256:124b44bfc9ccd1f3cedf4b592d4d1e8bddb78b51ec2ed5056c52d3692baebc19
+    Port:           <none>
+    Host Port:      <none>
+    State:          Running
+      Started:      Fri, 21 Mar 2025 20:21:20 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-mrgbt (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-mrgbt:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  24s   default-scheduler  Successfully assigned default/with-node-affinity to ensf400-m02
+  Normal  Pulling    23s   kubelet            Pulling image "nginx"
+  Normal  Pulled     15s   kubelet            Successfully pulled image "nginx" in 7.846s (7.846s including waiting). Image size: 191978824 bytes.
+  Normal  Created    15s   kubelet            Created container nginx
+  Normal  Started    15s   kubelet            Started container nginx
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/7-scheduling (main) $ kubectl delete -f pod-with-node-affinity.yaml
+pod "with-node-affinity" deleted
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/7-scheduling (main) $ kubectl apply -f deploy-with-node-anti-affinity.yaml
+deployment.apps/nginx created
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/7-scheduling (main) $ kubectl get pods -o wide
+NAME                     READY   STATUS              RESTARTS   AGE    IP           NODE          NOMINATED NODE   READINESS GATES
+nginx                    1/1     Running             0          3m4s   10.244.2.2   ensf400-m03   <none>           <none>
+nginx-77594666c9-c24gj   0/1     ContainerCreating   0          10s    <none>       ensf400       <none>           <none>
+nginx-77594666c9-cp7hc   1/1     Running             0          10s    10.244.1.3   ensf400-m02   <none>           <none>
+nginx-77594666c9-hws6n   1/1     Running             0          10s    10.244.2.3   ensf400-m03   <none>           <none>
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/7-scheduling (main) $ kubectl delete -f deploy-with-node-anti-affinity.yaml
+deployment.apps "nginx" deleted
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/7-scheduling (main) $ history > commands_ex7.txt
+@aasha25 ➜ /workspaces/ensf400-lab8-kubernetes-2/7-scheduling (main) $ touch output_ex7.txt
